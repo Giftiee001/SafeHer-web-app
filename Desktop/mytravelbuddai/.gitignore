@@ -1,0 +1,12 @@
+# Dependency directories
+node_modules/
+
+# API keys and environment variables
+.env
+config.js
+
+# Mac system files
+.DS_Store
+
+# Logs
+*.log
