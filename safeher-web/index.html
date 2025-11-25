@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SafeHer - Women's Safety and Healthcare Access Platform">
+    <title>SafeHer - Your Safety, Our Priority</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Notifications Container -->
+    <div id="notificationsContainer" class="notifications-container"></div>
+
+    <!-- Login/Register Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo-container">
+                    <i data-lucide="shield" class="logo-icon"></i>
+                </div>
+                <h1>SafeHer</h1>
+                <p>Your Safety, Our Priority</p>
+            </div>
+            <div id="currentLocation" style="padding: 10px; background: #f0f0f0; text-align: center; font-size: 14px;">
+                <i class="fas fa-spinner fa-spin"></i> Checking location access...
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div id="loginError" class="error-message" style="display: none;"></div>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p class="auth-switch">
+                    Don't have an account?
+                    <a href="#" id="showRegister">Register</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <div id="registerError" class="error-message" style="display: none;"></div>
+                <form id="registerFormElement">
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Phone Number</label>
+                        <input type="tel" id="registerPhone" name="phone" placeholder="+234-xxx-xxx-xxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                <p class="auth-switch">
+                    Already have an account?
+                    <a href="#" id="showLogin">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Screen -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <i data-lucide="shield" class="header-icon"></i>
+                    <span class="app-name">SafeHer</span>
+                </div>
+                <div class="header-right">
+                    <button id="notificationBtn" class="icon-btn">
+                        <i data-lucide="bell"></i>
+                        <span id="notificationBadge" class="badge hidden">0</span>
+                    </button>
+                    <button id="menuBtn" class="icon-btn">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Menu -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Menu</h3>
+                <button id="closeSidebar" class="icon-btn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="home">
+                    <i data-lucide="home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item" data-view="healthcare">
+                    <i data-lucide="hospital"></i>
+                    <span>Healthcare Directory</span>
+                </a>
+                <a href="#" class="nav-item" data-view="contacts">
+                    <i data-lucide="users"></i>
+                    <span>Emergency Contacts</span>
+                </a>
+                <a href="#" class="nav-item" data-view="profile">
+                    <i data-lucide="user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item" data-view="settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home View -->
+            <div id="homeView" class="view active">
+                <div class="welcome-section">
+                    <h2>Welcome, <span id="userName">User</span></h2>
+                    <p class="location-info">
+                        <i data-lucide="map-pin"></i>
+                        <span id="locationText">Getting your location...</span>
+                    </p>
+                </div>
+
+                <!-- Panic Button Section -->
+                <div class="panic-section">
+                    <div class="panic-container">
+                        <h3>Emergency Alert</h3>
+                        <p>Press and hold for 3 seconds to activate</p>
+                        <button id="panicButton" class="panic-button">
+                            <i data-lucide="alert-circle"></i>
+                            <span>SOS</span>
+                        </button>
+                        <p id="panicStatus" class="panic-status"></p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-grid">
+                        <button class="action-card" data-view="healthcare">
+                            <i data-lucide="hospital"></i>
+                            <span>Find Healthcare</span>
+                        </button>
+                        <button class="action-card" data-view="contacts">
+                            <i data-lucide="phone"></i>
+                            <span>Emergency Contacts</span>
+                        </button>
+                        <button class="action-card" id="shareLocationBtn">
+                            <i data-lucide="map-pin"></i>
+                            <span>Share Location</span>
+                        </button>
+                        <button class="action-card" id="callHelplineBtn">
+                            <i data-lucide="phone-call"></i>
+                            <span>Call Helpline</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Healthcare Directory View -->
+            <div id="healthcareView" class="view">
+                <div class="view-header">
+                    <h2>Healthcare Directory</h2>
+                    <div class="search-bar">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="healthcareSearch" placeholder="Search healthcare providers...">
+                    </div>
+                </div>
+                <div id="healthcareList" class="healthcare-list">
+                    <!-- Healthcare providers will be dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Emergency Contacts View -->
+            <div id="contactsView" class="view">
+                <div class="view-header">
+                    <h2>Emergency Contacts</h2>
+                    <button id="addContactBtn" class="btn btn-primary">
+                        <i data-lucide="plus"></i>
+                        Add Contact
+                    </button>
+                </div>
+
+                <!-- Add Contact Form -->
+                <div id="addContactForm" class="contact-form hidden">
+                    <h3>Add New Emergency Contact</h3>
+                    <form id="contactFormElement">
+                        <div class="form-group">
+                            <label for="contactName">Name</label>
+                            <input type="text" id="contactName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone">Phone Number</label>
+                            <input type="tel" id="contactPhone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactRelation">Relationship</label>
+                            <select id="contactRelation" name="relation" required>
+                                <option value="">Select relationship</option>
+                                <option value="Family">Family</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Partner">Partner</option>
+                                <option value="Colleague">Colleague</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Contact</button>
+                            <button type="button" id="cancelContactBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Contacts List -->
+                <div id="contactsList" class="contacts-list">
+                    <!-- Contacts will be dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="profileView" class="view">
+                <div class="view-header">
+                    <h2>My Profile</h2>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-avatar">
+                        <i data-lucide="user" class="avatar-icon"></i>
+                    </div>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <label>Name</label>
+                            <p id="profileName">-</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p id="profileEmail">-</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone</label>
+                            <p id="profilePhone">-</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Emergency Contacts</label>
+                            <p id="profileContactsCount">0</p>
+                        </div>
+                    </div>
+                    <button id="editProfileBtn" class="btn btn-primary">Edit Profile</button>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="view">
+                <div class="view-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>Location Settings</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="autoLocationToggle" checked>
+                                <span>Auto-share location during emergency</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="backgroundLocationToggle">
+                                <span>Allow background location access</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Notifications</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="pushNotificationsToggle" checked>
+                                <span>Enable push notifications</span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="soundToggle" checked>
+                                <span>Enable alert sounds</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Privacy</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="dataEncryptionToggle" checked disabled>
+                                <span>Data encryption (always enabled)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>About</h3>
+                        <p>SafeHer Version 1.0</p>
+                        <p>© 2025 SafeHer Initiative</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/location.js"></script>
+    <script src="js/panic.js"></script>
+    <script src="js/healthcare.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
