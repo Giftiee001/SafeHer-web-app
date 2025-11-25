@@ -62,28 +62,31 @@ let LocationService = {
     handleSuccess(position) {
         this.currentPosition = position;
         const { latitude, longitude, accuracy } = position.coords;
-        
+
         console.log('Current location:', {
             lat: latitude,
             lng: longitude,
             accuracy: accuracy
         });
 
-        // Update UI if there's a location display element
-        const locationDisplay = document.getElementById('currentLocation');
-        if (locationDisplay) {
-            locationDisplay.innerHTML = `
-                <div class="location-info">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}</span>
-                    <small>Accuracy: ±${Math.round(accuracy)}m</small>
-                </div>
-            `;
+        const locationText = document.getElementById('locationText');
+        if (locationText) {
+            locationText.textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
         }
 
-        // Dispatch custom event
-        window.dispatchEvent(new CustomEvent('locationUpdated', { 
-            detail: { latitude, longitude, accuracy } 
+        const currentLocation = document.getElementById('currentLocation');
+        if (currentLocation) {
+            currentLocation.innerHTML = `
+                <i data-lucide="map-pin"></i>
+                <span>Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)} (±${Math.round(accuracy)}m)</span>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        window.dispatchEvent(new CustomEvent('locationUpdated', {
+            detail: { latitude, longitude, accuracy }
         }));
     },
 
@@ -363,7 +366,11 @@ let LocationService = {
      */
     shareCurrentLocation() {
         if (!this.currentPosition) {
-            alert('Location not available yet. Please wait...');
+            if (typeof NotificationService !== 'undefined') {
+                NotificationService.show('Location not available yet. Please wait...', 'warning');
+            } else {
+                alert('Location not available yet. Please wait...');
+            }
             return;
         }
 
@@ -373,27 +380,57 @@ let LocationService = {
         if (navigator.share) {
             navigator.share({
                 title: 'My Current Location',
-                text: `I'm here: ${latitude}, ${longitude}`,
+                text: `I'm here: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
                 url: mapsLink
-            }).catch(err => console.log('Error sharing:', err));
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(mapsLink).then(() => {
-                alert('Location link copied to clipboard!\n' + mapsLink);
-            }).catch(() => {
-                alert('Your location:\n' + mapsLink);
+            }).then(() => {
+                if (typeof NotificationService !== 'undefined') {
+                    NotificationService.show('Location shared successfully!', 'success');
+                }
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                if (typeof NotificationService !== 'undefined') {
+                    NotificationService.show('Share cancelled', 'info');
+                }
             });
+        } else {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(mapsLink).then(() => {
+                    if (typeof NotificationService !== 'undefined') {
+                        NotificationService.show('Location link copied to clipboard!', 'success');
+                    } else {
+                        alert('Location link copied to clipboard!\n' + mapsLink);
+                    }
+                }).catch(() => {
+                    if (typeof NotificationService !== 'undefined') {
+                        NotificationService.show('Could not copy. Link: ' + mapsLink, 'warning');
+                    } else {
+                        alert('Your location:\n' + mapsLink);
+                    }
+                });
+            } else {
+                if (typeof NotificationService !== 'undefined') {
+                    NotificationService.show('Location: ' + mapsLink, 'info');
+                } else {
+                    alert('Your location:\n' + mapsLink);
+                }
+            }
         }
     }
 };
 
-// Initialize on page load
+// Initialize only if user is logged in (main app is visible)
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        LocationService.init();
+        const mainApp = document.getElementById('mainApp');
+        if (mainApp && !mainApp.classList.contains('hidden')) {
+            LocationService.init();
+        }
     });
 } else {
-    LocationService.init();
+    const mainApp = document.getElementById('mainApp');
+    if (mainApp && !mainApp.classList.contains('hidden')) {
+        LocationService.init();
+    }
 }
 
 // Make available globally

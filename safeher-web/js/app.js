@@ -14,21 +14,11 @@ let SafeHerApp = {
      */
     init() {
         console.log('Initializing SafeHer App...');
-        
-        // Check authentication
+
         this.checkAuth();
-        
-        // Set up navigation
         this.setupNavigation();
-        
-        // Initialize location service
-        if (typeof LocationService !== 'undefined') {
-            LocationService.init();
-        }
-        
-        // Set up event listeners
         this.setupEventListeners();
-        
+
         console.log('✓ SafeHer App initialized');
     },
 
@@ -46,6 +36,10 @@ let SafeHerApp = {
                 this.showView('home');
                 this.updateUserDisplay();
                 this.loadEmergencyContacts();
+
+                if (typeof LocationService !== 'undefined' && !LocationService.isTracking) {
+                    LocationService.init();
+                }
             } catch (error) {
                 console.error('Error parsing user data:', error);
                 this.logout();
@@ -60,16 +54,20 @@ let SafeHerApp = {
      * Set up navigation
      */
     setupNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
                 e.preventDefault();
-                const view = link.getAttribute('data-view');
+                const view = item.getAttribute('data-view');
                 this.showView(view);
 
-                // Update active nav link
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('active');
+                }
             });
         });
 
@@ -145,6 +143,11 @@ let SafeHerApp = {
 
         // Load view-specific data
         this.loadViewData(viewName);
+
+        // Reinitialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     },
 
     /**
@@ -173,28 +176,64 @@ let SafeHerApp = {
      * Set up event listeners
      */
     setupEventListeners() {
-        // Add contact form
+        const menuBtn = document.getElementById('menuBtn');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        if (menuBtn && sidebar) {
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.add('active');
+            });
+        }
+
+        if (closeSidebar && sidebar) {
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+            });
+        }
+
+        const addContactBtn = document.getElementById('addContactBtn');
         const addContactForm = document.getElementById('addContactForm');
-        if (addContactForm) {
-            addContactForm.addEventListener('submit', (e) => {
+        const cancelContactBtn = document.getElementById('cancelContactBtn');
+
+        if (addContactBtn && addContactForm) {
+            addContactBtn.addEventListener('click', () => {
+                addContactForm.classList.remove('hidden');
+            });
+        }
+
+        if (cancelContactBtn && addContactForm) {
+            cancelContactBtn.addEventListener('click', () => {
+                addContactForm.classList.add('hidden');
+                document.getElementById('contactFormElement').reset();
+            });
+        }
+
+        const contactFormElement = document.getElementById('contactFormElement');
+        if (contactFormElement) {
+            contactFormElement.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.addEmergencyContact();
             });
         }
 
-        // Update profile form
-        const updateProfileForm = document.getElementById('updateProfileForm');
-        if (updateProfileForm) {
-            updateProfileForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.updateProfile();
-            });
-        }
-
-        // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.logout());
+        }
+
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        if (editProfileBtn) {
+            editProfileBtn.addEventListener('click', () => {
+                NotificationService.show('Profile editing coming soon!', 'info');
+            });
+        }
+
+        const notificationBtn = document.getElementById('notificationBtn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
+                NotificationService.show('No new notifications', 'info');
+            });
         }
     },
 
@@ -304,7 +343,7 @@ let SafeHerApp = {
     async addEmergencyContact() {
         const name = document.getElementById('contactName').value;
         const phone = document.getElementById('contactPhone').value;
-        const relationship = document.getElementById('contactRelationship').value;
+        const relationship = document.getElementById('contactRelation').value;
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -326,7 +365,11 @@ let SafeHerApp = {
 
             if (response.ok) {
                 NotificationService.show('Contact added successfully!', 'success');
-                this.hideAddContactForm();
+                const addContactForm = document.getElementById('addContactForm');
+                if (addContactForm) {
+                    addContactForm.classList.add('hidden');
+                }
+                document.getElementById('contactFormElement').reset();
                 this.loadEmergencyContacts();
             } else {
                 NotificationService.show(data.message || 'Failed to add contact', 'error');
@@ -384,10 +427,12 @@ let SafeHerApp = {
         const profileName = document.getElementById('profileName');
         const profileEmail = document.getElementById('profileEmail');
         const profilePhone = document.getElementById('profilePhone');
+        const profileContactsCount = document.getElementById('profileContactsCount');
 
-        if (profileName) profileName.value = this.currentUser.name;
-        if (profileEmail) profileEmail.value = this.currentUser.email;
-        if (profilePhone) profilePhone.value = this.currentUser.phone || '';
+        if (profileName) profileName.textContent = this.currentUser.name || '-';
+        if (profileEmail) profileEmail.textContent = this.currentUser.email || '-';
+        if (profilePhone) profilePhone.textContent = this.currentUser.phone || '-';
+        if (profileContactsCount) profileContactsCount.textContent = this.emergencyContacts.length;
     },
 
     /**

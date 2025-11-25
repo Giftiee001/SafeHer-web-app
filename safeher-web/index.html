@@ -6,7 +6,7 @@
     <meta name="description" content="SafeHer - Women's Safety and Healthcare Access Platform">
     <title>SafeHer - Your Safety, Our Priority</title>
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Lucide Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -22,9 +22,6 @@
                 </div>
                 <h1>SafeHer</h1>
                 <p>Your Safety, Our Priority</p>
-            </div>
-            <div id="currentLocation" style="padding: 10px; background: #f0f0f0; text-align: center; font-size: 14px;">
-                <i class="fas fa-spinner fa-spin"></i> Checking location access...
             </div>
 
             <!-- Login Form -->
@@ -148,6 +145,7 @@
                         <i data-lucide="map-pin"></i>
                         <span id="locationText">Getting your location...</span>
                     </p>
+                    <div id="currentLocation" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);"></div>
                 </div>
 
                 <!-- Panic Button Section -->
@@ -189,22 +187,29 @@
 
             <!-- Healthcare Directory View -->
             <div id="healthcareView" class="view">
+                <button class="back-btn" onclick="SafeHerApp.showView('home')">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
                 <div class="view-header">
                     <h2>Healthcare Directory</h2>
-                    <div class="search-bar">
-                        <i data-lucide="search"></i>
-                        <input type="text" id="healthcareSearch" placeholder="Search healthcare providers...">
-                    </div>
                 </div>
-                <div id="healthcareList" class="healthcare-list">
-                    <!-- Healthcare providers will be dynamically loaded -->
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="healthcareSearch" placeholder="Search hospitals, clinics...">
+                </div>
+                <div id="providersList" class="healthcare-list">
                 </div>
             </div>
 
             <!-- Emergency Contacts View -->
             <div id="contactsView" class="view">
+                <button class="back-btn" onclick="SafeHerApp.showView('home')">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
                 <div class="view-header">
                     <h2>Emergency Contacts</h2>
+                </div>
+                <div style="margin-bottom: 20px;">
                     <button id="addContactBtn" class="btn btn-primary">
                         <i data-lucide="plus"></i>
                         Add Contact
@@ -249,6 +254,9 @@
 
             <!-- Profile View -->
             <div id="profileView" class="view">
+                <button class="back-btn" onclick="SafeHerApp.showView('home')">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
                 <div class="view-header">
                     <h2>My Profile</h2>
                 </div>
@@ -259,15 +267,15 @@
                     <div class="profile-info">
                         <div class="info-item">
                             <label>Name</label>
-                            <p id="profileName">-</p>
+                            <p id="profileName"></p>
                         </div>
                         <div class="info-item">
                             <label>Email</label>
-                            <p id="profileEmail">-</p>
+                            <p id="profileEmail"></p>
                         </div>
                         <div class="info-item">
                             <label>Phone</label>
-                            <p id="profilePhone">-</p>
+                            <p id="profilePhone"></p>
                         </div>
                         <div class="info-item">
                             <label>Emergency Contacts</label>
@@ -280,6 +288,9 @@
 
             <!-- Settings View -->
             <div id="settingsView" class="view">
+                <button class="back-btn" onclick="SafeHerApp.showView('home')">
+                    <i data-lucide="arrow-left"></i> Back
+                </button>
                 <div class="view-header">
                     <h2>Settings</h2>
                 </div>

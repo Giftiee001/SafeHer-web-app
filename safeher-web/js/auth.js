@@ -78,7 +78,7 @@ let AuthService = {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
 
         try {
-            const response = await fetch(`${this.API_URL}/auth/register`, {
+            const response = await fetch(`${this.API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -102,6 +102,11 @@ let AuthService = {
 
                 // Show success message
                 NotificationService.show('Login successful!', 'success');
+
+                // Initialize location service
+                if (typeof LocationService !== 'undefined' && !LocationService.isTracking) {
+                    LocationService.init();
+                }
 
                 // Redirect to home
                 setTimeout(() => {
@@ -195,6 +200,11 @@ let AuthService = {
 
                 // Show success message
                 NotificationService.show('Registration successful! Welcome to SafeHer!', 'success');
+
+                // Initialize location service
+                if (typeof LocationService !== 'undefined' && !LocationService.isTracking) {
+                    LocationService.init();
+                }
 
                 // Redirect to home
                 setTimeout(() => {
