@@ -43,8 +43,8 @@ app.get('/api/v1/health', (req, res) => {
 
 // Mount API routes
 app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1/emergency', require('./routes/emergencyRoutes'));
 // TODO: Fix missing controller functions before enabling
-// app.use('/api/v1/emergency', require('./routes/emergencyRoutes'));
 // app.use('/api/v1/healthcare', require('./routes/healthcareRoutes'));
 // app.use('/api/v1/user', require('./routes/userRoutes'));
 

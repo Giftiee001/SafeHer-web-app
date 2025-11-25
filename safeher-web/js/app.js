@@ -341,9 +341,14 @@ let SafeHerApp = {
      * Add emergency contact
      */
     async addEmergencyContact() {
-        const name = document.getElementById('contactName').value;
-        const phone = document.getElementById('contactPhone').value;
-        const relationship = document.getElementById('contactRelation').value;
+        const name = document.getElementById('contactName').value.trim();
+        const phone = document.getElementById('contactPhone').value.trim();
+        const relation = document.getElementById('contactRelation').value;
+
+        if (!name || !phone || !relation) {
+            NotificationService.show('Please fill in all fields', 'error');
+            return;
+        }
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -358,7 +363,7 @@ let SafeHerApp = {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name, phone, relationship })
+                body: JSON.stringify({ name, phone, relation })
             });
 
             const data = await response.json();
