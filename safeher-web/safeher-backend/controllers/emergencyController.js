@@ -3,6 +3,7 @@
  * Handles emergency alerts, panic button, and emergency contacts
  */
 
+const { supabase } = require('../config/supabase');
 const EmergencyAlert = require('../models/EmergencyAlert');
 const EmergencyContact = require('../models/EmergencyContact');
 const User = require('../models/User');
@@ -314,11 +315,12 @@ exports.addEmergencyContact = async (req, res, next) => {
     try {
         const { name, phone, email, relation, isPrimary, notes } = req.body;
 
-        // Check if contact already exists
-        const existingContact = await EmergencyContact.findOne({
-            user: req.user.id,
-            phone
-        });
+        const { data: existingContact, error: checkError } = await supabase
+            .from('emergency_contacts')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .eq('phone', phone)
+            .single();
 
         if (existingContact) {
             return res.status(400).json({
@@ -327,28 +329,40 @@ exports.addEmergencyContact = async (req, res, next) => {
             });
         }
 
-        // If setting as primary, remove primary from other contacts
         if (isPrimary) {
-            await EmergencyContact.updateMany(
-                { user: req.user.id, isPrimary: true },
-                { isPrimary: false }
-            );
+            await supabase
+                .from('emergency_contacts')
+                .update({ is_primary: false })
+                .eq('user_id', req.user.id)
+                .eq('is_primary', true);
         }
 
-        const contact = await EmergencyContact.create({
-            user: req.user.id,
+        const contactData = {
+            user_id: req.user.id,
             name,
             phone,
-            email,
             relation,
-            isPrimary,
-            notes
-        });
+            is_primary: isPrimary || false,
+            is_active: true
+        };
 
-        // Update user's emergency contacts array
-        await User.findByIdAndUpdate(req.user.id, {
-            $push: { emergencyContacts: contact._id }
-        });
+        if (email) contactData.email = email;
+        if (notes) contactData.notes = notes;
+
+        const { data: contact, error } = await supabase
+            .from('emergency_contacts')
+            .insert([contactData])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error adding emergency contact',
+                error: error.message
+            });
+        }
 
         res.status(201).json({
             success: true,
@@ -357,6 +371,7 @@ exports.addEmergencyContact = async (req, res, next) => {
         });
 
     } catch (error) {
+        console.error('Error adding emergency contact:', error);
         res.status(500).json({
             success: false,
             message: 'Error adding emergency contact',
@@ -370,15 +385,31 @@ exports.addEmergencyContact = async (req, res, next) => {
 // @access  Private
 exports.getEmergencyContacts = async (req, res, next) => {
     try {
-        const contacts = await EmergencyContact.getActiveContacts(req.user.id);
+        const { data: contacts, error } = await supabase
+            .from('emergency_contacts')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .eq('is_active', true)
+            .order('is_primary', { ascending: false })
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching emergency contacts',
+                error: error.message
+            });
+        }
 
         res.status(200).json({
             success: true,
-            count: contacts.length,
-            data: contacts
+            count: contacts?.length || 0,
+            data: contacts || []
         });
 
     } catch (error) {
+        console.error('Error fetching emergency contacts:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching emergency contacts',
@@ -441,24 +472,20 @@ exports.updateEmergencyContact = async (req, res, next) => {
 // @access  Private
 exports.deleteEmergencyContact = async (req, res, next) => {
     try {
-        const contact = await EmergencyContact.findOne({
-            _id: req.params.id,
-            user: req.user.id
-        });
+        const { error } = await supabase
+            .from('emergency_contacts')
+            .delete()
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
 
-        if (!contact) {
-            return res.status(404).json({
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
                 success: false,
-                message: 'Contact not found'
+                message: 'Error deleting contact',
+                error: error.message
             });
         }
-
-        await contact.remove();
-
-        // Remove from user's emergency contacts array
-        await User.findByIdAndUpdate(req.user.id, {
-            $pull: { emergencyContacts: req.params.id }
-        });
 
         res.status(200).json({
             success: true,
@@ -467,6 +494,7 @@ exports.deleteEmergencyContact = async (req, res, next) => {
         });
 
     } catch (error) {
+        console.error('Error deleting contact:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting contact',
