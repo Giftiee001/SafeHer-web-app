@@ -4,7 +4,7 @@
  */
 
 let HealthcareService = {
-    API_URL: 'https://safeher-web-app.onrender.com',
+    API_URL: 'https://safeher-web-app.onrender.com/api/v1',
     providers: [],
     filteredProviders: [],
 

@@ -4,7 +4,7 @@
  */
 
 let AuthService = {
-    API_URL: 'https://safeher-web-app.onrender.com',
+    API_URL: 'https://safeher-web-app.onrender.com/api/v1',
 
     /**
      * Initialize authentication service

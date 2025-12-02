@@ -4,7 +4,7 @@
  */
 
 let PanicService = {
-    API_URL: 'https://safeher-web-app.onrender.com',
+    API_URL: 'https://safeher-web-app.onrender.com/api/v1',
     isActive: false,
     holdTimer: null,
     holdDuration: 3000, // 3 seconds
